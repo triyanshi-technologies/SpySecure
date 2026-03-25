@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup Selection</title>
+  <style>
+    :root {
+      --bg-start: #f7f1e8;
+      --bg-end: #e8eef5;
+      --card-bg: rgba(255, 255, 255, 0.78);
+      --card-border: rgba(34, 44, 56, 0.1);
+      --text-main: #1f2933;
+      --text-muted: #52606d;
+      --accent-1: #e27d60;
+      --accent-2: #3d5a80;
+      --shadow: 0 20px 45px rgba(31, 41, 51, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at top left, rgba(226, 125, 96, 0.18), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(61, 90, 128, 0.2), transparent 30%),
+        linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    }
+
+    .wrapper {
+      width: min(960px, 100%);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: 0.02em;
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 22px;
+    }
+
+    .mockup-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .mockup-card:hover,
+    .mockup-card:focus-visible {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 50px rgba(31, 41, 51, 0.18);
+      border-color: rgba(61, 90, 128, 0.28);
+      outline: none;
+    }
+
+    .card-badge {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    }
+
+    .mockup-card h2 {
+      margin: 0 0 12px;
+      font-size: 1.7rem;
+    }
+
+    .mockup-card p {
+      margin: 0 0 20px;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    .card-link {
+      font-weight: 700;
+      color: var(--accent-2);
+    }
+  </style>
+</head>
+<body>
+  <main class="wrapper">
+    <div class="header">
+      <h1>Choose a Mockup</h1>
+      <p>Select one of the mockups below to open the corresponding HTML file.</p>
+    </div>
+
+    <section class="mockup-grid">
+      <a class="mockup-card" href="Mockup-1.html">
+        <span class="card-badge">Preview</span>
+        <h2>Mockup - 1</h2>
+        <!-- <p>Open the first client mockup page directly from this launcher screen.</p> -->
+        <span class="card-link">Mockup-1.html</span>
+      </a>
+
+      <a class="mockup-card" href="Mockup-2.html">
+        <span class="card-badge">Preview</span>
+        <h2>Mockup - 2</h2>
+        <!-- <p>Open the second client mockup page directly from this launcher screen.</p> -->
+        <span class="card-link">Mockup-2.html</span>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
