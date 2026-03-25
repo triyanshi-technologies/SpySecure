@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpySecure – Mockup 1: Client-Aligned Header</title>
+  <style>
+    /* ─── Reset & Base ─── */
+    :root {
+      --header-height: 60px;
+      --mobile-menu-offset: 60px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f0f4f8;
+      overflow-x: hidden;
+    }
+    body.menu-open { overflow: hidden; }
+
+    /* ─── Design Token Strip ─── */
+    .token-strip {
+      background: #1a1a2e; color: #fff; font-size: 11px;
+      padding: 6px 24px; display: flex; gap: 12px 24px; flex-wrap: wrap;
+      justify-content: center; letter-spacing: .04em; font-family: monospace;
+    }
+    .token-strip span { opacity: .75; }
+    .token-strip strong { opacity: 1; }
+
+    /* ─── Announcement Bar ─── */
+    .announce-bar {
+      background: #0e4f4f; color: #fff; text-align: center;
+      font-size: 13px; padding: 9px 16px; letter-spacing: .01em;
+      text-wrap: balance;
+    }
+    .announce-bar a { color: #ff7043; text-decoration: none; font-weight: 600; margin-left: 6px; }
+    .announce-bar a:hover { text-decoration: underline; }
+
+    /* ─── HEADER ─── */
+    header {
+      position: sticky; top: 0; z-index: 1000;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 1px 8px rgba(0,0,0,.08);
+    }
+
+    .nav-wrapper {
+      max-width: 1440px; margin: 0 auto;
+      display: flex; align-items: center;
+      min-height: var(--header-height); padding: 0 clamp(12px, 2vw, 24px); gap: clamp(10px, 1.5vw, 20px);
+    }
+
+    /* Logo */
+    .logo { display: flex; align-items: center; gap: 0; text-decoration: none; flex-shrink: 0; margin-right: 0; }
+    .logo img { height: 34px; width: auto; display: block; max-width: min(150px, 100%); }
+
+    /* ─── Main Nav ─── */
+    nav.main-nav { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; }
+    .nav-item { position: relative; }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 3px;
+      font-size: 13px; font-weight: 500; color: #2d3748;
+      padding: 6px 9px; border-radius: 5px; text-decoration: none;
+      white-space: nowrap; transition: all .18s;
+      border: none; background: none; cursor: pointer;
+    }
+    .nav-link:hover { background: #f0f4f8; color: #0e4f4f; }
+    .nav-link.active { color: #0e4f4f; font-weight: 600; }
+
+    .nav-link svg.chevron {
+      width: 12px; height: 12px; transition: transform .2s; flex-shrink: 0;
+    }
+    .nav-item:hover .chevron { transform: rotate(180deg); }
+
+    /* ─── Mega-Menu Dropdown ─── */
+    .dropdown-mega {
+      position: absolute; top: calc(100% + 10px); left: 50%;
+      transform: translateX(-50%);
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.12);
+      padding: 24px; min-width: 0; width: min(580px, calc(100vw - 40px));
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .18s, transform .18s;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    .nav-item:hover .dropdown-mega {
+      opacity: 1; visibility: visible; pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Arrow notch */
+    .dropdown-mega::before {
+      content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+      width: 12px; height: 12px; background: #fff; border: 1px solid #e2e8f0;
+      border-bottom: none; border-right: none; transform: translateX(-50%) rotate(45deg);
+    }
+
+    .mega-grid { display: grid; gap: 8px; }
+    .mega-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .mega-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+    .mega-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: #94a3b8; margin-bottom: 10px; padding-bottom: 6px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .mega-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px; border-radius: 8px; text-decoration: none;
+      transition: background .15s;
+    }
+    .mega-item:hover { background: #f8fafc; }
+
+    .mega-icon {
+      width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mega-icon svg { width: 20px; height: 20px; }
+
+    .mega-icon.teal { background: #e8f5f5; color: #0e4f4f; }
+    .mega-icon.orange { background: #fff3ee; color: #ff7043; }
+    .mega-icon.blue { background: #eff6ff; color: #3b82f6; }
+    .mega-icon.purple { background: #f5f3ff; color: #7c3aed; }
+
+    .mega-item-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+    .mega-item-desc { font-size: 12px; color: #64748b; margin-top: 2px; line-height: 1.4; }
+
+    .mega-footer {
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mega-footer-link {
+      font-size: 13px; color: #0e4f4f; font-weight: 600; text-decoration: none;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .mega-footer-link:hover { text-decoration: underline; }
+
+    /* Simple dropdown */
+    .dropdown-simple {
+      position: absolute; top: calc(100% + 10px); left: 0;
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.10);
+      padding: 8px; min-width: min(220px, calc(100vw - 32px));
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .18s, transform .18s;
+      transform: translateY(-4px);
+    }
+    .nav-item:hover .dropdown-simple {
+      opacity: 1; visibility: visible; pointer-events: auto;
+      transform: translateY(0);
+    }
+    .dropdown-simple a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 6px; text-decoration: none; color: #374151;
+      font-size: 14px; transition: background .14s;
+    }
+    .dropdown-simple a:hover { background: #f8fafc; color: #0e4f4f; }
+    .dropdown-simple a span.dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; flex-shrink: 0;
+    }
+    .dropdown-simple a:hover span.dot { background: #0e4f4f; }
+
+    /* ─── Right Actions ─── */
+    .nav-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: auto; }
+
+    .btn-ghost { display: none; } /* removed to save space */
+
+    .btn-outline {
+      font-size: 12px; font-weight: 600; color: #0e4f4f;
+      padding: 7px 12px; border-radius: 6px; text-decoration: none;
+      border: 1.5px solid #0e4f4f; transition: all .18s; white-space: nowrap;
+    }
+    .btn-outline:hover { background: #0e4f4f; color: #fff; }
+
+    .btn-primary {
+      font-size: 13px; font-weight: 700; color: #fff;
+      padding: 8px 14px; border-radius: 6px; text-decoration: none;
+      background: #ff7043; border: none; cursor: pointer; transition: all .18s;
+      white-space: nowrap; display: flex; align-items: center; gap: 5px;
+    }
+    .btn-primary:hover { background: #e8532a; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(255,112,67,.35); }
+    .btn-outline, .btn-primary, .lang-toggle { flex-shrink: 0; }
+
+    .divider-v { width: 1px; height: 18px; background: #e2e8f0; margin: 0 2px; }
+
+    /* Language toggle */
+    .lang-toggle {
+      display: flex; align-items: center; gap: 3px;
+      font-size: 12px; font-weight: 500; color: #64748b;
+      padding: 5px 8px; border-radius: 5px; cursor: pointer;
+      border: 1px solid #e2e8f0; background: none; transition: all .15s; white-space: nowrap;
+    }
+    .lang-toggle:hover { border-color: #cbd5e1; color: #374151; }
+
+    /* ─── Hamburger ─── */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px; cursor: pointer;
+      padding: 6px; border: none; background: none; border-radius: 6px;
+    }
+    .hamburger span { display: block; width: 22px; height: 2px; background: #374151; border-radius: 2px; transition: all .25s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ─── Mobile Menu ─── */
+    .mobile-menu {
+      display: none; position: fixed;
+      top: var(--mobile-menu-offset);
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: #fff; z-index: 999; overflow-y: auto;
+      padding: 20px 16px 28px; border-top: 1px solid #e2e8f0;
+    }
+    .mobile-menu.open { display: block; }
+    .mobile-section { margin-bottom: 8px; }
+    .mobile-section-title {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #94a3b8; padding: 8px 12px; margin-top: 8px;
+    }
+    .mobile-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px; border-radius: 8px; text-decoration: none;
+      color: #374151; font-size: 15px; font-weight: 500; transition: background .14s;
+    }
+    .mobile-link:hover { background: #f8fafc; color: #0e4f4f; }
+    .mobile-divider { height: 1px; background: #f1f5f9; margin: 8px 0; }
+    .mobile-ctas { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; padding: 0 12px; }
+    .mobile-ctas .btn-outline,
+    .mobile-ctas .btn-primary {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* ─── DEMO SECTION ─── */
+    .demo-section { padding: clamp(32px, 5vw, 56px) clamp(16px, 4vw, 24px); text-align: center; }
+    .demo-section h2 { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .demo-section p { color: #64748b; font-size: 14px; }
+    .screen-badges { display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+    .badge {
+      padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid #e2e8f0; color: #64748b;
+    }
+    .badge.active { background: #0e4f4f; color: #fff; border-color: #0e4f4f; }
+
+    /* ─── ANNOTATIONS ─── */
+    .annotation-box {
+      max-width: 900px; margin: 0 auto 32px; background: #fff;
+      border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;
+    }
+    .annotation-header {
+      background: #0e4f4f; color: #fff; padding: 12px 20px;
+      font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px;
+    }
+    .annotation-body { padding: 16px 20px; }
+    .annotation-row { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; text-align: left; }
+    .annotation-row:last-child { border-bottom: none; }
+    .annotation-tag {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      padding: 2px 8px; border-radius: 4px; white-space: nowrap; align-self: flex-start; margin-top: 1px;
+    }
+    .tag-fixed { background: #dcfce7; color: #15803d; }
+    .tag-new { background: #dbeafe; color: #1d4ed8; }
+    .tag-note { background: #fef9c3; color: #a16207; }
+
+    /* ─── Hero placeholder ─── */
+    .hero-placeholder {
+      background: linear-gradient(135deg, #0d3d3d 0%, #0e4f4f 50%, #1a6363 100%);
+      min-height: 380px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; padding: clamp(48px, 7vw, 72px) 24px;
+      color: #fff; position: relative; overflow: hidden;
+    }
+    .hero-placeholder::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 50%, rgba(255,112,67,.12) 0%, transparent 65%);
+    }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: #ff7043; margin-bottom: 16px; position: relative;
+    }
+    .hero-title { font-size: clamp(30px, 4.2vw, 48px); font-weight: 800; line-height: 1.1; margin-bottom: 16px; position: relative; }
+    .hero-title em { color: #ff7043; font-style: normal; }
+    .hero-sub { font-size: clamp(14px, 1.6vw, 17px); color: rgba(255,255,255,.75); max-width: 520px; line-height: 1.6; position: relative; }
+    .hero-ctas { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; position: relative; }
+    .hero-btn-primary {
+      background: #ff7043; color: #fff; font-weight: 700; font-size: 15px;
+      padding: 13px 28px; border-radius: 8px; text-decoration: none; transition: all .18s;
+    }
+    .hero-btn-primary:hover { background: #e8532a; transform: translateY(-1px); }
+    .hero-btn-ghost {
+      background: rgba(255,255,255,.12); color: #fff; font-weight: 600; font-size: 15px;
+      padding: 13px 28px; border-radius: 8px; text-decoration: none; border: 1.5px solid rgba(255,255,255,.3);
+      transition: all .18s; backdrop-filter: blur(4px);
+    }
+    .hero-btn-ghost:hover { background: rgba(255,255,255,.2); }
+
+    /* Responsive */
+    @media (max-width: 1280px) {
+      .nav-link { padding: 6px 7px; font-size: 12px; }
+      .btn-outline { padding: 7px 10px; }
+      .btn-primary { padding: 8px 12px; }
+      .dropdown-mega { width: min(520px, calc(100vw - 40px)); }
+      nav.main-nav .nav-item:nth-child(n+7) { display: none; }
+    }
+    @media (max-width: 1140px) {
+      .lang-toggle,
+      .divider-v { display: none; }
+      .dropdown-mega { width: min(460px, calc(100vw - 32px)); padding: 20px; }
+      .mega-grid.cols-2,
+      .mega-grid.cols-3 { grid-template-columns: 1fr; }
+      .mega-footer { gap: 12px; flex-wrap: wrap; }
+      nav.main-nav .nav-item:nth-child(n+6) { display: none; }
+    }
+    @media (max-width: 920px) {
+      :root { --header-height: 56px; }
+      nav.main-nav { display: none; }
+      .hamburger { display: flex; }
+      .logo img { height: 32px; max-width: 132px; }
+      .btn-outline { display: none; }
+      .btn-primary { font-size: 12px; padding: 7px 10px; }
+      .mobile-menu { padding-top: 16px; }
+    }
+    @media (min-width: 921px) {
+      .mobile-menu { display: none !important; }
+    }
+    @media (max-width: 768px) {
+      .token-strip { padding: 8px 12px; font-size: 10px; gap: 8px 12px; }
+      .announce-bar { font-size: 12px; padding: 8px 12px; }
+      .hero-placeholder { min-height: auto; padding-inline: 20px; }
+      .hero-ctas {
+        width: 100%;
+        max-width: 420px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .hero-btn-primary,
+      .hero-btn-ghost {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      .annotation-header,
+      .annotation-body { padding-inline: 16px; }
+      .annotation-row { flex-direction: column; gap: 8px; }
+    }
+    @media (max-width: 640px) {
+      .btn-primary,
+      .lang-toggle,
+      .divider-v { display: none; }
+      .nav-wrapper { padding-inline: 12px; }
+      .mobile-link { font-size: 14px; padding: 11px 12px; }
+    }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 28px; }
+      .hero-sub { font-size: 14px; }
+      .annotation-box { border-radius: 10px; }
+      .badge { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Design tokens info -->
+<!-- <div class="token-strip">
+  <span>🎨 Mockup 1 — <strong>Client-Aligned</strong></span>
+  <span>Nav BG: <strong>#ffffff</strong> (hoog contrast)</span>
+  <span>Accent: <strong>#0e4f4f</strong></span>
+  <span>CTA: <strong>#ff7043</strong></span>
+  <span>Font: <strong>Segoe UI / System</strong></span>
+  <span>Taal: <strong>NL 🇳🇱</strong></span>
+</div> -->
+
+<!-- Announcement Bar -->
+<div class="announce-bar">
+  🔒 Gratis Cybersecurity Health Check voor MKB — beperkt beschikbaar.
+  <a href="#">Plan nu →</a>
+</div>
+
+<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+<header id="main-header">
+  <div class="nav-wrapper">
+
+    <!-- Logo -->
+    <a href="https://www.spysecure.nl/?hsLang=nl" class="logo" aria-label="SpySecure – naar startpagina">
+      <img src="https://www.spysecure.nl/hs-fs/hubfs/logo%201%20(bold)%20-%20no%20white%20space%20-%20resized-1.png" alt="SpySecure logo" />
+    </a>
+
+    <!-- Main Nav -->
+    <nav class="main-nav" aria-label="Hoofdnavigatie">
+
+      <!-- Managed Cybersecurity (mega-menu) -->
+      <div class="nav-item">
+        <button class="nav-link active" aria-haspopup="true" aria-expanded="false">
+          Managed Cybersecurity
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="dropdown-mega" role="menu">
+          <p class="mega-section-label">Oplossingen</p>
+          <div class="mega-grid cols-2">
+            <a href="#" class="mega-item">
+              <div class="mega-icon teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">Endpoint Bescherming</div>
+                <div class="mega-item-desc">Real-time beveiliging voor al uw apparaten en eindpunten</div>
+              </div>
+            </a>
+            <a href="#" class="mega-item">
+              <div class="mega-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 1 0 4.93 19.07"/><path d="M15.54 8.46A5 5 0 1 0 8.46 15.54"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">Threat Intelligence</div>
+                <div class="mega-item-desc">24/7 monitoring en proactieve dreigingsdetectie</div>
+              </div>
+            </a>
+            <a href="#" class="mega-item">
+              <div class="mega-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">Identiteits­beheer</div>
+                <div class="mega-item-desc">MFA, SSO en toegangsbeheer voor uw organisatie</div>
+              </div>
+            </a>
+            <a href="#" class="mega-item">
+              <div class="mega-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">SIEM &amp; SOC</div>
+                <div class="mega-item-desc">Gecentraliseerde loganalyse en beveiligings­operations</div>
+              </div>
+            </a>
+          </div>
+          <div class="mega-footer">
+            <a href="#" class="mega-footer-link">
+              Alle oplossingen bekijken
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <span style="font-size:12px;color:#64748b;">4 modules beschikbaar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compliance -->
+      <div class="nav-item">
+        <button class="nav-link" aria-haspopup="true" aria-expanded="false">
+          Compliance
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="dropdown-simple" role="menu">
+          <a href="https://www.spysecure.nl/iso27001"><span class="dot"></span> ISO 27001</a>
+          <a href="https://www.spysecure.nl/nis2"><span class="dot"></span> NIS2</a>
+          <a href="https://www.spysecure.nl/avg"><span class="dot"></span> AVG / GDPR</a>
+          <a href="https://www.spysecure.nl/soc2"><span class="dot"></span> SOC 2</a>
+        </div>
+      </div>
+
+      <!-- Hoe het werkt -->
+      <div class="nav-item">
+        <a href="https://www.spysecure.nl/hoe-het-werkt" class="nav-link">Hoe het werkt</a>
+      </div>
+
+      <!-- Kennis (mega-menu) -->
+      <div class="nav-item">
+        <button class="nav-link" aria-haspopup="true" aria-expanded="false">
+          Kennis
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="dropdown-mega" role="menu" style="min-width:460px;">
+          <p class="mega-section-label">Leer &amp; Ontdek</p>
+          <div class="mega-grid cols-2">
+            <a href="#" class="mega-item">
+              <div class="mega-icon teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">Blog &amp; Artikelen</div>
+                <div class="mega-item-desc">Laatste inzichten en cybersecurity-nieuws</div>
+              </div>
+            </a>
+            <a href="#" class="mega-item">
+              <div class="mega-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">Webinars</div>
+                <div class="mega-item-desc">Live en on-demand sessies met experts</div>
+              </div>
+            </a>
+            <a href="#" class="mega-item">
+              <div class="mega-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">Whitepapers</div>
+                <div class="mega-item-desc">Diepgaande rapporten en handleidingen</div>
+              </div>
+            </a>
+            <a href="#" class="mega-item">
+              <div class="mega-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              </div>
+              <div>
+                <div class="mega-item-title">Case Studies</div>
+                <div class="mega-item-desc">Succesverhalen van klanten in Nederland</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarieven -->
+      <div class="nav-item">
+        <a href="https://www.spysecure.nl/managed-cybersecurity" class="nav-link">Tarieven</a>
+      </div>
+
+      <!-- SpySecure (Over ons) -->
+      <div class="nav-item">
+        <button class="nav-link" aria-haspopup="true" aria-expanded="false">
+          SpySecure
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="dropdown-simple" role="menu">
+          <a href="https://www.spysecure.nl/over-ons"><span class="dot"></span> Over ons</a>
+          <a href="https://www.spysecure.nl/team"><span class="dot"></span> Ons team</a>
+          <a href="https://www.spysecure.nl/partners"><span class="dot"></span> Partners</a>
+          <a href="https://www.spysecure.nl/vacatures"><span class="dot"></span> Vacatures</a>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="nav-item">
+        <a href="https://www.spysecure.nl/contact" class="nav-link">Contact</a>
+      </div>
+
+    </nav><!-- /main-nav -->
+
+    <!-- Right Actions -->
+    <div class="nav-actions">
+      <!-- Language toggle -->
+      <button class="lang-toggle" aria-label="Taal wisselen">
+        🇳🇱 NL
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+
+      <div class="divider-v"></div>
+
+      <!-- Secondary CTA -->
+      <a href="https://www.spysecure.nl/gratis-cybersecurity-quickscan" class="btn-outline">Check mijn beveiliging →</a>
+
+      <!-- Primary CTA -->
+      <a href="https://www.spysecure.nl/managed-cybersecurity" class="btn-primary">
+        Beveilig mijn bedrijf →
+      </a>
+
+      <!-- Hamburger -->
+      <button class="hamburger" id="menuToggle" aria-label="Menu openen" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+  </div><!-- /nav-wrapper -->
+</header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <div class="mobile-section">
+    <div class="mobile-section-title">Managed Cybersecurity</div>
+    <a href="https://www.spysecure.nl/endpoint" class="mobile-link">🛡️ Endpoint Bescherming</a>
+    <a href="https://www.spysecure.nl/threat-intelligence" class="mobile-link">📡 Threat Intelligence</a>
+    <a href="https://www.spysecure.nl/identiteitsbeheer" class="mobile-link">🔐 Identiteitsbeheer</a>
+    <a href="https://www.spysecure.nl/siem" class="mobile-link">📊 SIEM &amp; SOC</a>
+  </div>
+  <div class="mobile-divider"></div>
+  <div class="mobile-section">
+    <div class="mobile-section-title">Compliance</div>
+    <a href="https://www.spysecure.nl/iso27001" class="mobile-link">✅ ISO 27001</a>
+    <a href="https://www.spysecure.nl/nis2" class="mobile-link">✅ NIS2</a>
+    <a href="https://www.spysecure.nl/avg" class="mobile-link">✅ AVG / GDPR</a>
+  </div>
+  <div class="mobile-divider"></div>
+  <div class="mobile-section">
+    <a href="https://www.spysecure.nl/hoe-het-werkt" class="mobile-link">⚙️ Hoe het werkt</a>
+    <a href="https://www.spysecure.nl/kennisbank" class="mobile-link">📚 Kennis</a>
+    <a href="https://www.spysecure.nl/managed-cybersecurity" class="mobile-link">💶 Tarieven</a>
+    <a href="https://www.spysecure.nl/over-ons" class="mobile-link">🏢 SpySecure</a>
+    <a href="https://www.spysecure.nl/contact" class="mobile-link">📞 Contact</a>
+  </div>
+  <div class="mobile-ctas">
+    <a href="https://www.spysecure.nl/gratis-cybersecurity-quickscan" class="btn-outline" style="text-align:center;padding:12px;">Check mijn beveiliging →</a>
+    <a href="https://www.spysecure.nl/managed-cybersecurity" class="btn-primary" style="justify-content:center;padding:13px 20px;font-size:15px;">Beveilig mijn bedrijf →</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<div class="hero-placeholder">
+  <div class="hero-eyebrow">Managed Cybersecurity &amp; Compliance</div>
+  <h1 class="hero-title">Uw digitale veiligheid,<br/>onze <em>prioriteit</em></h1>
+  <p class="hero-sub">SpySecure beschermt Nederlandse bedrijven met 24/7 monitoring, proactieve dreigingsdetectie en volledig beheerde compliance-oplossingen.</p>
+  <div class="hero-ctas">
+    <a href="https://www.spysecure.nl/managed-cybersecurity" class="hero-btn-primary">Beveilig mijn bedrijf →</a>
+    <a href="https://www.spysecure.nl/gratis-cybersecurity-quickscan" class="hero-btn-ghost">Check mijn beveiliging →</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ ANNOTATIONS ═══════════════════════════ -->
+<!-- <div class="demo-section">
+  <h2>📋 Mockup 1 — Client-Aligned: Ontwerpnoten</h2>
+  <p style="margin-bottom:24px;">Alle aanpassingen op basis van clientfeedback</p>
+
+  <div class="annotation-box">
+    <div class="annotation-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Clientfeedback verwerkt
+    </div>
+    <div class="annotation-body">
+      <div class="annotation-row">
+        <span class="annotation-tag tag-fixed">Opgelost</span>
+        <span><strong>NL taal:</strong> Alle navigatielabels zijn vertaald naar Nederlands: "Prijzen", "Kennisbank", "Gratis starten", "Inloggen", "Demo aanvragen".</span>
+      </div>
+      <div class="annotation-row">
+        <span class="annotation-tag tag-fixed">Opgelost</span>
+        <span><strong>Contrast navigatie:</strong> Witte achtergrond behouden (client-voorkeur), donkere tekst (#2d3748) voor optimale leesbaarheid — WCAG AA compliant.</span>
+      </div>
+      <div class="annotation-row">
+        <span class="annotation-tag tag-fixed">Opgelost</span>
+        <span><strong>CTA-knoppen:</strong> Twee knoppen — "Demo aanvragen" (outline) + "Gratis starten" (primair oranje). Ruimte geoptimaliseerd; "Gratis starten" leidt naar registratiepagina.</span>
+      </div>
+      <div class="annotation-row">
+        <span class="annotation-tag tag-new">Nieuw</span>
+        <span><strong>Mega-menu dropdowns:</strong> Geïnspireerd op eye.security &amp; duna.com — 2-koloms grid met pictogrammen, beschrijvingen en een voettekst-CTA. Vloeiende hover-animaties.</span>
+      </div>
+      <div class="annotation-row">
+        <span class="annotation-tag tag-new">Nieuw</span>
+        <span><strong>Aankondigingsbalk:</strong> Bovenaan de pagina voor promotionele berichten — eenvoudig aan/uit te zetten.</span>
+      </div>
+      <div class="annotation-row">
+        <span class="annotation-tag tag-new">Nieuw</span>
+        <span><strong>Responsief ontwerp:</strong> Hamburgermenu op mobiel (&lt;768px), verkorte navigatie op tablet, volledige navigatie op desktop. Getest op 320px–1440px.</span>
+      </div>
+      <div class="annotation-row">
+        <span class="annotation-tag tag-note">Vraag</span>
+        <span><strong>"Gratis starten" bestemming:</strong> Wordt aanbevolen om naar <em>/registreer</em> te leiden (zelfbediening) of naar een leadformulier. Klant te bevestigen.</span>
+      </div>
+    </div>
+  </div>
+
+  Screen size badges
+  <div class="screen-badges">
+    <div class="badge active">📱 Mobiel (320px–767px)</div>
+    <div class="badge active">📱 Tablet (768px–1023px)</div>
+    <div class="badge active">💻 Desktop (1024px–1440px)</div>
+    <div class="badge active">🖥️ Wide (1440px+)</div>
+  </div>
+  <p style="font-size:13px;color:#64748b;">Schaal de browser om alle breakpoints te testen ↔</p>
+</div> -->
+
+<script>
+  const header = document.getElementById('main-header');
+  const toggle = document.getElementById('menuToggle');
+  const menu   = document.getElementById('mobileMenu');
+  const mobileMq = window.matchMedia('(max-width: 920px)');
+  const updateMenuOffset = () => {
+    const headerBottom = Math.max(header.getBoundingClientRect().bottom, 0);
+    document.documentElement.style.setProperty('--mobile-menu-offset', `${headerBottom}px`);
+  };
+
+  const closeMenu = () => {
+    toggle.classList.remove('open');
+    menu.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    menu.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('menu-open');
+  };
+
+  toggle.addEventListener('click', () => {
+    updateMenuOffset();
+    const open = toggle.classList.toggle('open');
+    menu.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    menu.setAttribute('aria-hidden', String(!open));
+    document.body.classList.toggle('menu-open', open);
+  });
+
+  mobileMq.addEventListener('change', (event) => {
+    updateMenuOffset();
+    if (!event.matches) closeMenu();
+  });
+
+  menu.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  window.addEventListener('resize', updateMenuOffset);
+  window.addEventListener('scroll', updateMenuOffset, { passive: true });
+  updateMenuOffset();
+</script>
+</body>
+</html>
